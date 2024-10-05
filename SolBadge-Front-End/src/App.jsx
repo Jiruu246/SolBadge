@@ -15,10 +15,10 @@ function App() {
   const getNfts = async () => {
     try {
       const response = await axios.get('http://localhost:3003/nfts', {params: {addr: address}})
-      console.log(response.data)
-      // setNFTs(response.data)
+      console.log(response.data.data)
+      setNFTs(response.data.data)
     } catch (error) {
-      setError(error)
+      setError(error.message)
     }
   };
 
@@ -42,22 +42,22 @@ function App() {
       <VerticalTimeline
         layout="1-column-left"
       >
-        {(error !== null)? 
-          <p> Error: {error}</p> : 
-          nfts.map((nft, index) => (
-            <VerticalTimelineElement
-              key={index}
-              className="vertical-timeline-element--work"
-              contentStyle={{ background: 'rgb(33, 150, 243)', color: '#fff' }}
-              contentArrowStyle={{ borderRight: '7px solid  rgb(33, 150, 243)' }}
-              date={nft.timestamp}
-              iconStyle={{ background: 'rgb(33, 150, 243)', color: '#fff' }}
-              icon={<img src={nft.image} alt="react logo" />}
-            >
-              <h3 className="vertical-timeline-element-title">{nft.name}</h3>
-              <h4 className="vertical-timeline-element-subtitle">{nft.address}</h4>
-              <p>{nft.description}</p>
-            </VerticalTimelineElement>))}
+        {/* {(error !== null)? 
+          <p> Error: {error}</p> :  */}
+        {nfts.map((nft, index) => (
+          <VerticalTimelineElement
+            key={index}
+            className="vertical-timeline-element--work"
+            contentStyle={{ background: 'rgb(33, 150, 243)', color: '#fff' }}
+            contentArrowStyle={{ borderRight: '7px solid  rgb(33, 150, 243)' }}
+            date={nft.timestamp}
+            iconStyle={{ background: 'rgb(33, 150, 243)', color: '#fff' }}
+            icon={<img src={nft.image} alt="nft image" />}
+          >
+            <h3 className="vertical-timeline-element-title">{nft.name}</h3>
+            <h4 className="vertical-timeline-element-subtitle">{nft.address}</h4>
+            <p>{nft.description}</p>
+          </VerticalTimelineElement>))}
         </VerticalTimeline>
     </>
   )
