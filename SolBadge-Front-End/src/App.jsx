@@ -4,19 +4,23 @@ import SolanaLogo from '/Solana.svg'
 import './App.css'
 import {VerticalTimeline, VerticalTimelineElement} from 'react-vertical-timeline-component'
 import 'react-vertical-timeline-component/style.min.css';
+import axios from 'axios'
 
 function App() {
 
-  const [data, setData] = useState([
-    {title: 'NTF 1', subtitle: 'sample', description: 'more sample', date: '10/04/2024'},
-    {title: 'NTF 2', subtitle: 'sample', description: 'more sample', date: '10/04/2024'},])
+  const [address, setAddress] = useState('')
+  const [nfts, setNFTs] = useState([])
+  const [error, setError] = useState(null)
 
-  useEffect(() => {
-    fetch('http://localhost:3001/api')
-    .then(response => response.json())
-    .then(data => setData(data))
-    .catch(error => console.error(error))
-  }, [])
+  const getNfts = async () => {
+    try {
+      const response = await axios.get('http://localhost:3003/nfts', {params: {addr: address}})
+      console.log(response.data)
+      // setNFTs(response.data)
+    } catch (error) {
+      setError(error)
+    }
+  };
 
   return (
     <>
@@ -27,31 +31,34 @@ function App() {
       </div>
       <h1>SolBadge is here!</h1>
       <div className="card">
-        <input type="text" placeholder="Enter your wallet address" />
-        <button>
-          find NTFs
-        </button>
+        <input 
+          type="text" 
+          placeholder="Enter your wallet address"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          />
+        <button onClick={getNfts}>find NTFs</button>
       </div>
       <VerticalTimeline
         layout="1-column-left"
       >
-        {data.map((item, index) => (
-          <VerticalTimelineElement
-            key={index}
-            className="vertical-timeline-element--work"
-            contentStyle={{ background: 'rgb(33, 150, 243)', color: '#fff' }}
-            contentArrowStyle={{ borderRight: '7px solid  rgb(33, 150, 243)' }}
-            date={item.date}
-            iconStyle={{ background: 'rgb(33, 150, 243)', color: '#fff' }}
-            icon={<img src={reactLogo} alt="react logo" />}
-          >
-            <h3 className="vertical-timeline-element-title">{item.title}</h3>
-            <h4 className="vertical-timeline-element-subtitle">{item.subtitle}</h4>
-            <p>
-              {item.description}
-            </p>
-          </VerticalTimelineElement>))}
-      </VerticalTimeline>
+        {(error !== null)? 
+          <p> Error: {error}</p> : 
+          nfts.map((nft, index) => (
+            <VerticalTimelineElement
+              key={index}
+              className="vertical-timeline-element--work"
+              contentStyle={{ background: 'rgb(33, 150, 243)', color: '#fff' }}
+              contentArrowStyle={{ borderRight: '7px solid  rgb(33, 150, 243)' }}
+              date={nft.timestamp}
+              iconStyle={{ background: 'rgb(33, 150, 243)', color: '#fff' }}
+              icon={<img src={nft.image} alt="react logo" />}
+            >
+              <h3 className="vertical-timeline-element-title">{nft.name}</h3>
+              <h4 className="vertical-timeline-element-subtitle">{nft.address}</h4>
+              <p>{nft.description}</p>
+            </VerticalTimelineElement>))}
+        </VerticalTimeline>
     </>
   )
 }
