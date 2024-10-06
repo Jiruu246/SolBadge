@@ -1,21 +1,41 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  /* justify-content: center; */
+  place-items: center;
 }
 
-.logo {
+.vertical-timeline-element-content-arrow {
+  display: none;
+}
+
+.vertical-timeline-element-content {
+  box-shadow: none !important;
+  background: none !important;
+}
+
+.vertical-timeline-element-icon {
+  width: 2rem !important;
+  height: 2rem !important;
+  background: var(--primary);
+  box-shadow: none !important;
+}
+
+.vertical-timeline::before {
+  background: var(--secondary-background) !important;
+  left: 1rem !important;
+}
+
+/* .logo {
   height: 6em;
   padding: 1.5em;
   will-change: filter;
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  filter: drop-shadow(0 0 2em var(--primary));
 }
 
 @keyframes logo-spin {
@@ -31,12 +51,4 @@
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
   }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
+} */
