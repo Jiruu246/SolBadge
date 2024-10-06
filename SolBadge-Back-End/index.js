@@ -82,7 +82,7 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 // Function to process a batch of items
 async function processBatch(batch, config, walletAddress) {
   for (const item of batch) {
-    if (item.interface == "V1_NFT") {
+    if (item.interface == "V1_NFT" || item.interface == "MplCoreAsset") {
       const data2 = {
         "jsonrpc": "2.0",
         "id": 1,
@@ -96,6 +96,8 @@ async function processBatch(batch, config, walletAddress) {
       console.log(item.content.metadata.name)
       console.log(item.content.metadata.description)
       console.log(item.content.links.image)
+      console.log(item.content.metadata.attributes)
+      const nftAttributeLocation = item.content.metadata.attributes.find(attr => attr.trait_type === 'location')?.value;
       try {
         const sigResponse = await axios.post(
           `https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`,
@@ -104,7 +106,7 @@ async function processBatch(batch, config, walletAddress) {
         );
         console.log(sigResponse.data)
         console.log(sigResponse.data.result[sigResponse.data.result.length - 1])
-        nftData[walletAddress].push({name: nftName, timestamp: sigResponse.data.result[sigResponse.data.result.length - 1].blockTime, description: nftDesc, address: item.id, image: nftImg})
+        nftData[walletAddress].push({name: nftName, timestamp: sigResponse.data.result[sigResponse.data.result.length - 1].blockTime, description: nftDesc, address: item.id, image: nftImg, location: nftAttributeLocation || null})
 
         // for (const sigs of sigResponse.data.result) {
         //   if (sigs[1] == 'MintToCollectionV1') {
