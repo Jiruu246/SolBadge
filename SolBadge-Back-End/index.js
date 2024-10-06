@@ -50,8 +50,10 @@ app.get("/nfts", async (req, res) => {
             item.content && 
             item.content.metadata && 
             item.content.metadata.attributes && 
-            item.content.metadata.attributes.length > 0
+            item.content.metadata.attributes.some(attr => attr.trait_type == 'poap')
           );
+        
+        console.log(items)
     
         const batchSize = 8; // Adjust this value based on rate limits
         const delayBetweenBatches = 1000; // 1 second delay between batches
@@ -84,8 +86,8 @@ async function processBatch(batch, config, walletAddress) {
       const data2 = {
         "jsonrpc": "2.0",
         "id": 1,
-        "method": "getSignaturesForAsset",
-        "params": {id: item.id}
+        "method": "getSignaturesForAddress",
+        "params": [item.id]
       };
       let nftName = item.content.metadata.name
       let nftDesc = item.content.metadata.description
@@ -100,32 +102,35 @@ async function processBatch(batch, config, walletAddress) {
           data2,
           config
         );
+        console.log(sigResponse.data)
+        console.log(sigResponse.data.result[sigResponse.data.result.length - 1])
+        nftData[walletAddress].push({name: nftName, timestamp: sigResponse.data.result[sigResponse.data.result.length - 1].blockTime, description: nftDesc, address: item.id, image: nftImg})
 
-        for (const sigs of sigResponse.data.result.items) {
-          if (sigs[1] == 'MintToCollectionV1') {
-            const data3 = {
-              "jsonrpc": "2.0",
-              "id": 1,
-              "method": "getTransaction",
-              "params": [sigs[0], "json"]
-            };
+        // for (const sigs of sigResponse.data.result) {
+        //   if (sigs[1] == 'MintToCollectionV1') {
+        //     const data3 = {
+        //       "jsonrpc": "2.0",
+        //       "id": 1,
+        //       "method": "getTransaction",
+        //       "params": [sigs[sigs.length], "json"]
+        //     };
 
-            try {
-              const txResponse = await axios.post(
-                `https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`,
-                data3,
-                config
-              );
-              if (txResponse.data.result.blockTime == null)
-                console.log(txResponse.data.result);
+        //     try {
+        //       const txResponse = await axios.post(
+        //         `https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`,
+        //         data3,
+        //         config
+        //       );
+        //       if (txResponse.data.result.blockTime == null)
+        //         console.log(txResponse.data.result);
 
-              nftData[walletAddress].push({name: nftName, timestamp: txResponse.data.result.blockTime, description: nftDesc, address: item.id, image: nftImg})
-              // Process txResponse.data here
-            } catch (error) {
-              console.error("Error fetching transaction:", error.message);
-            }
-          }
-        }
+        //       nftData[walletAddress].push({name: nftName, timestamp: txResponse.data.result.blockTime, description: nftDesc, address: item.id, image: nftImg})
+        //       // Process txResponse.data here
+        //     } catch (error) {
+        //       console.error("Error fetching transaction:", error.message);
+        //     }
+        //   }
+        // }
       } catch (error) {
         console.error("Error fetching signatures:", error.message);
       }
