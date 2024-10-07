@@ -66,7 +66,52 @@ app.get("/nfts", async (req, res) => {
           }
         }
     
+        if (req.query.order) {
+          const grouped = {};
+          const chosenOrder = req.query.order
+
+          // Loop through nftData array
+          nftData[walletAddress].forEach(item => {
+              const date = new Date(item.timestamp * 1000); // Convert unix timestamp to Date
+              const month = date.toLocaleString('default', { month: 'long' }); // Get month name
+              const year = date.getFullYear(); // Get year
+
+              if (chosenOrder == "year"){
+                console.log("year")
+                if (!grouped[year]) {
+                  grouped[year] = [];
+                }
+                grouped[year].push(item);
+              } else {
+                console.log("month")
+                if (!grouped[year]) {
+                  grouped[year] = {
+                    [month]: []
+                  }
+                }
+                grouped[year][month].push(item);
+              }
+
+              console.log(grouped)
+
+              // test = {
+              //   ["data"]: {
+              //     ["2024"]: {
+              //       ["October"]: [
+              //         {"nft1": "ads"},
+              //         {"nft2": "asd"}
+              //       ]
+              //     }
+              //   }
+              // }
+
+          });
+
+          nftData[walletAddress] = grouped
+        }
+
         console.log(nftData[walletAddress])
+
         return res.status(200).json({
             data: nftData[walletAddress]
         });
@@ -106,7 +151,14 @@ async function processBatch(batch, config, walletAddress) {
         );
         console.log(sigResponse.data)
         console.log(sigResponse.data.result[sigResponse.data.result.length - 1])
-        nftData[walletAddress].push({name: nftName, timestamp: sigResponse.data.result[sigResponse.data.result.length - 1].blockTime, description: nftDesc, address: item.id, image: nftImg, location: nftAttributeLocation || null})
+        nftData[walletAddress].push({
+          name: nftName, 
+          timestamp: sigResponse.data.result[sigResponse.data.result.length - 1].blockTime,
+          description: nftDesc, 
+          address: item.id, 
+          image: nftImg, 
+          location: nftAttributeLocation || null
+        })
 
         // for (const sigs of sigResponse.data.result) {
         //   if (sigs[1] == 'MintToCollectionV1') {
