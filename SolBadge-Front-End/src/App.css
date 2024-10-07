@@ -7,6 +7,10 @@
   place-items: center;
 }
 
+.vertical-timeline-element {
+  padding-top: 5rem;
+}
+
 .vertical-timeline-element-content-arrow {
   display: none;
 }
@@ -26,6 +30,13 @@
 .vertical-timeline::before {
   background: var(--secondary-background) !important;
   left: 1rem !important;
+  top: 2rem !important;
+}
+
+.vertical-timeline-element-icon > * {
+  width: auto !important;
+  position: relative;
+  left: 3rem;
 }
 
 /* .logo {

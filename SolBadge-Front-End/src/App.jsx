@@ -1,32 +1,89 @@
 import { useState, useEffect } from 'react'
 import RightArrow from './assets/maki_arrow.svg'
-import LocationIcon from './assets/location.svg'
+import LoadingIcon from './assets/90-ring.svg'
 import './App.css'
 import {VerticalTimeline, VerticalTimelineElement} from 'react-vertical-timeline-component'
 import 'react-vertical-timeline-component/style.min.css';
 import axios from 'axios'
+import NFTCard from './components/NFTCard'
+
+function GroupNFTsByDate(nfts) {
+  const grouped = nfts.reduce((acc, nft) => {
+    const date = new Date(nft.timestamp * 1000)
+    const year = date.getFullYear()
+    const month = date.toLocaleString('default', { month: 'long' })
+
+    const key = `${month} ${year}`
+
+    if (!acc[key]) {
+      acc[key] = []
+    }
+    acc[key].push(nft)
+    return acc
+  }, {})
+
+  // Sort each group by timestamp in descending order
+  Object.keys(grouped).forEach(key => {
+    grouped[key].sort((a, b) => b.timestamp - a.timestamp)
+  })
+
+  return grouped
+}
 
 function App() {
-  const SampleNFT = 'https://cdn.prod.website-files.com/6615636a03a6003b067c36dd/661ffd0dbe9673d914edca2d_6423fc9ca8b5e94da1681a70_Screenshot%25202023-03-29%2520at%252010.53.43.jpeg'
 
+  const [loading, setLoading] = useState(false)
   const [focus, setFocus] = useState(false)
   const [address, setAddress] = useState('')
-  const [nfts, setNFTs] = useState([
-    {name: 'NFT 1', address: '0x1234567890', description: 'Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et.', image: SampleNFT, timestamp: '2022-10-10'},
-    {name: 'NFT 1', address: '0x1234567890', description: 'Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et.', image: SampleNFT, timestamp: '2022-10-10'},
-    {name: 'NFT 1', address: '0x1234567890', description: 'Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et.', image: SampleNFT, timestamp: '2022-10-10'},
-    {name: 'NFT 1', address: '0x1234567890', description: 'Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et.', image: SampleNFT, timestamp: '2022-10-10'},
-    {name: 'NFT 1', address: '0x1234567890', description: 'Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et.', image: SampleNFT, timestamp: '2022-10-10'}
-  ])
+  const [nfts, setNFTs] = useState(null)
+  // const [nfts, setNFTs] = useState(GroupNFTsByDate([
+  //   {
+  //     "name": "DePIN Revolution 2024 - day 2",
+  //     "timestamp": 1724545405,
+  //     "description": "DePIN Revolution 2024 - day 2 - I was there!",
+  //     "address": "E8TukwBikJUguTQcQBTbAiRGpUMBPwGLhhCWppBHW9xQ",
+  //     "image": "https://arweave.net/3tflnppn4YGmxyIKoqva2kiVwm7yv5MJbAQRDTZA0_g",
+  //     "location": null
+  //   },
+  //   {
+  //     "name": "Breakpoint Singapore 2024 - POAP",
+  //     "timestamp": 1726914878,
+  //     "description": "This POAP collection marks your last Chomp at a RWE (Real World Event) powered by Chomp. It looks like you chomped a deck at Breakpoint Singapore 2024! To celebrate your contribution to building better information for us all, Chompy has gifted you one free in-Chomp answer reveal in the form of this POAP. 👾 Go test it out now at app.chomp.games!",
+  //     "address": "6KGyUsfQZozLkAVfKuyYuQQaPeqzs2z2SfU7UcF6szhd",
+  //     "image": "https://gateway.irys.xyz/uAkw5mShxxzhLNAfVjjgDwdXvjsfSe0u8AKGzENqydA",
+  //     "location": null
+  //   },
+  //   {
+  //     "name": "DePIN Revolution 2024 - day 1",
+  //     "timestamp": 1724466335,
+  //     "description": "DePIN Revolution 2024 - day 1 - I was there!",
+  //     "address": "5Ar9mr9vLEmvaSCY9ccPvE38bVSnnKuLURLTvu6Qx4zu",
+  //     "image": "https://arweave.net/0HQrwgcWs-_NO3Mk4AiJjt_nEZg9OQaJ7Hbpcwt_ix8",
+  //     "location": null
+  //   },
+  //   {
+  //     "name": "DePIN Revolution 2024 - day 3",
+  //     "timestamp": 1724628101,
+  //     "description": "DePIN Revolution 2024 - day 3 - I was there!",
+  //     "address": "2R743vkEkSBwKLwitQZHoLtutF1jr7haxLXgP937J7cM",
+  //     "image": "https://arweave.net/4WIUFEGcY86VJyeBGKdIQ-wrmXB6HNjRohDfmyxowo0",
+  //     "location": null
+  //   }
+  // ]))
+  
   const [error, setError] = useState(null)
 
   const getNfts = async () => {
+    setLoading(true)
     try {
       const response = await axios.get('http://localhost:3003/nfts', {params: {addr: address}})
+      setNFTs(GroupNFTsByDate(response.data.data))
       console.log(response.data.data)
-      setNFTs(response.data.data)
     } catch (error) {
       setError(error.message)
+      console.error(error)
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -49,40 +106,24 @@ function App() {
           onBlur={() => setFocus(false)}
           className="bg-transparent focus:outline-none w-full"
           />
-        <button onClick={getNfts}>
-          <img src={RightArrow} alt="Search" className="bg-[var(--primary)] p-1 rounded-full"/>
+        <button onClick={getNfts} disabled={loading} 
+          className={`
+            ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[var(--primary-darken)]'} 
+            bg-[var(--primary)] p-1 rounded-full`}>
+          <img src={loading ? LoadingIcon : RightArrow } alt="button image" className="w-8"/>
         </button>
       </div>
-      <VerticalTimeline layout="1-column-left">
-        {nfts.map((nft, index) => (
-          <VerticalTimelineElement
-            key={index}
-            date={nft.timestamp}
-            // icon={<div className="w-2 h-2 rounded-full bg-white"/>}
-          >
-            <div 
-              className="
-                bg-cover bg-center w-72 h-96 rounded-3xl p-2 
-                border-2 flex flex-col justify-between
-                hover:border-[var(--primary)] hover:cursor-pointer"
-              style={{ backgroundImage: `url(${nft.image})`}}>
-              <div className="w-full flex justify-end">
-                <button className="
-                  p-2 w-12 h-12 flex items-center justify-center rounded-2xl 
-                  bg-[var(--text)] backdrop-blur-sm hover:bg-[var(--primary)]">
-                  <img src={LocationIcon} alt="Location" className="w-6"/>
-                </button>
-              </div>
-              <div className="
-                  p-2 items-center justify-center rounded-2xl 
-                  bg-white/30 backdrop-blur-sm">
-                <h3 className="text-white text-xl font-bold">{nft.name}</h3>
-                <h4 className="text-white text-sm">{nft.description}</h4>
-              </div>
+      {nfts !== null && <VerticalTimeline layout="1-column-left">
+        {Object.keys(nfts).map((date, index) => (
+          <VerticalTimelineElement key={index} icon={<p className="text-lg font-bold text-left">{date}</p>}>
+            <div className="flex flex-wrap gap-8">
+            {nfts[date].map((nft, index) => (
+              <NFTCard key={index} nft={nft}/>
+            ))}
             </div>
           </VerticalTimelineElement>
         ))}
-      </VerticalTimeline>
+      </VerticalTimeline>}
     </>
   )
 }
