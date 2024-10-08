@@ -18,9 +18,7 @@ require('dotenv').config();
 
 const app = express()
 app.use(express.json())
-app.use(cors({
-    origin: "http://localhost:3000"
-})) //temporarily to allow requests from localhost:3000
+app.use(cors()) //temporarily to allow requests from localhost:3000
 
 app.listen("3003", () => {
     console.log("Server Listening on PORT:", 3000);

@@ -41,6 +41,7 @@ function App() {
 
   const getNfts = async () => {
     setLoading(true)
+    setError(false)
     try {
       const response = await axios.get(import.meta.env.VITE_API_END_POINT, {params: {addr: address}})
       setNFTs(GroupNFTsByDate(response.data.data))
