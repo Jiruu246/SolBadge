@@ -54,8 +54,8 @@ function App() {
 
   return (
     <>
-      <p className='text-6xl font-bold p-6 mt-48'>SolBadge is here!</p>
-      <p className='text-xl'>Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et.</p>
+      <p className='text-6xl font-bold p-6 mt-48'>POP NFT is here!</p>
+      <p className='text-xl'>Welcome to the POP Explorer! Enter your SOL address below to view all your POAP NFTs in a timeline 👇</p>
       <div className={`
         w-1/2 m-8 pl-8 pr-2 py-2 flex justify-between
         ${focus? 'border-[var(--primary)]' : 'border-[var(--secondary-light)]'}
