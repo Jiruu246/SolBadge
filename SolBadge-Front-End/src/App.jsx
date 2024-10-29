@@ -36,7 +36,7 @@ function App() {
   const [focus, setFocus] = useState(false)
   const [address, setAddress] = useState('')
   const [nfts, setNFTs] = useState(null)
-  
+
   const [error, setError] = useState(false)
 
   const getNfts = async () => {
@@ -54,46 +54,67 @@ function App() {
 
   return (
     <>
-      <p className='text-6xl font-bold p-6 mt-48'>POP NFT is here!</p>
-      <p className='text-xl'>Welcome to the POP Explorer! Enter your SOL address below to view all your POAP NFTs in a timeline 👇</p>
-      <div className={`
-        w-1/2 m-8 pl-8 pr-2 py-2 flex justify-between
-        ${focus? 'border-[var(--primary)]' : 'border-[var(--secondary-light)]'}
-        bg-transparent border-2 rounded-full
-        hover:border-2 hover:border-[var(--primary)]
-        transition-colors duration-300 ease-in-out`}>
-        <input 
-          type="text" 
-          placeholder="Enter your wallet address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          onFocus={() => setFocus(true)}
-          onBlur={() => setFocus(false)}
-          className="bg-transparent focus:outline-none w-full"
-          />
-        <button onClick={getNfts} disabled={loading} 
-          className={`
-            ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[var(--primary-darken)]'} 
-            bg-[var(--primary)] p-1 rounded-full`}>
-          <img src={loading ? LoadingIcon : RightArrow } alt="button image" className="w-8"/>
-        </button>
+      <div className='px-4'>
+        <p className='text-4xl font-bold p-6 mt-24 text-center'>POP NFT is here!</p>
+        <p className='text-lg text-center'>Welcome to the POP Explorer! Enter your SOL address below to view all your POAP NFTs in a timeline 👇</p>
+        <div className={`
+          w-full my-8 pl-8 pr-2 py-2 flex justify-between
+          ${focus? 'border-[var(--primary)]' : 'border-[var(--secondary-light)]'}
+          bg-transparent border-2 rounded-full
+          hover:border-2 hover:border-[var(--primary)]
+          transition-colors duration-300 ease-in-out`}>
+          <input
+            type="text"
+            placeholder="Enter your wallet address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            onFocus={() => setFocus(true)}
+            onBlur={() => setFocus(false)}
+            className="bg-transparent focus:outline-none w-full"
+            />
+          <button onClick={getNfts} disabled={loading}
+            className={`
+              ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[var(--primary-darken)]'}
+              bg-[var(--primary)] p-1 rounded-full`}>
+            <img src={loading ? LoadingIcon : RightArrow } alt="button image" className="w-8"/>
+          </button>
+        </div>
       </div>
       {error ? (
         <div>
           <p className="text-red-500 text-lg font-bold">{error}</p>
         </div>
       ) : (nfts !== null &&
-        <VerticalTimeline layout="1-column-left">
-          {Object.keys(nfts).map((date, index) => (
-            <VerticalTimelineElement key={index} icon={<p className="text-lg font-bold text-left">{date}</p>}>
-              <div className="flex flex-wrap gap-8">
-              {nfts[date].map((nft, index) => (
-                <NFTCard key={index} nft={nft}/>
-              ))}
+        <container>
+          <VerticalTimeline layout="1-column-left" className='hidden sm:block'>
+            {Object.keys(nfts).map((date, index) => (
+              <VerticalTimelineElement key={index} icon={<p className="text-lg font-bold text-left">{date}</p>}>
+                <div className="flex flex-wrap gap-8">
+                {nfts[date].map((nft, index) => (
+                  <NFTCard key={index} nft={nft}/>
+                ))}
+                </div>
+              </VerticalTimelineElement>
+            ))}
+          </VerticalTimeline>
+          <div className='p-4 block sm:hidden'>
+            {Object.keys(nfts).map((date, index) => (
+              <div key={index} className='py-2'>
+                <div class="flex items-center">
+                    <div class="flex-grow border-t border-gray-300"></div>
+                    <span class="font-light mx-4">{date}</span>
+                    <div class="flex-grow border-t border-gray-300"></div>
+                </div>
+                <div className="flex flex-col gap-4 py-8
+                ">
+                {nfts[date].map((nft, index) => (
+                  <NFTCard key={index} nft={nft}/>
+                ))}
+                </div>
               </div>
-            </VerticalTimelineElement>
-          ))}
-        </VerticalTimeline>
+            ))}
+          </div>
+        </container>
       )}
     </>
   )
