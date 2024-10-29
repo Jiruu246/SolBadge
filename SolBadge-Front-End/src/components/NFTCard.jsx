@@ -10,7 +10,7 @@ const truncateText = (text, maxLength) => {
 
 const NFTCard = ({nft}) => {
     const options = { day: 'numeric', month: 'short', year: 'numeric' };
-    const date = new Date(nft.timestamp).toLocaleDateString('en-GB', options);
+    const date = new Date(nft.timestamp * 1000).toLocaleDateString('en-GB', options);
 
     return (
         <>
